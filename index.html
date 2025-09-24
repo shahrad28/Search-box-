@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>serch box</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Courier New', Courier, monospace;
+      background-color: black;
+      color: white;
+      overflow: hidden;
+    }
+
+    canvas.matrix {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: 0;
+    }
+
+    .login-container {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.8);
+      border: 2px solid red;
+      padding: 20px;
+      border-radius: 10px;
+    }
+
+    .login-container input {
+      padding: 8px;
+      font-size: 14px;
+      border: 1px solid red;
+      background: black;
+      color: red;
+      outline: none;
+      width: 200px;
+    }
+
+    .login-container button {
+      margin-top: 10px;
+      padding: 8px 16px;
+      background: red;
+      color: black;
+      border: none;
+      cursor: pointer;
+    }
+
+    .error {
+      color: red;
+      margin-top: 10px;
+      animation: shake 0.3s;
+    }
+
+    @keyframes shake {
+      0% { transform: translate(-50%, -50%) translateX(-5px); }
+      50% { transform: translate(-50%, -50%) translateX(5px); }
+      100% { transform: translate(-50%, -50%) translateX(0); }
+    }
+
+    .main-page {
+      display: none;
+      position: absolute;
+      top: 20%;
+      left: 50%;
+      transform: translateX(-50%);
+      text-align: center;
+      z-index: 1;
+    }
+
+    .main-page input {
+      padding: 10px;
+      width: 300px;
+      background: black;
+      color: white;
+      border: 2px solid red;
+      font-size: 16px;
+    }
+
+    .main-page p {
+      color: red;
+      margin-top: 20px;
+    }
+
+    /* Style for clock */
+    .clock {
+      position: absolute;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 24px;
+      font-weight: bold;
+      color: red;
+      z-index: 2;
+    }
+  </style>
+</head>
+<body>
+  <canvas class="matrix"></canvas>
+
+  <div class="login-container" id="login-container">
+    <input type="password" id="password" placeholder="رمز عبور">
+    <button onclick="checkPassword()">ورود</button>
+    <div class="error" id="error"></div>
+  </div>
+
+  <div class="main-page" id="main-page">
+    <input type="text" id="search" placeholder="جستجو کن...">
+    <p id="search-result"></p>
+  </div>
+
+  <!-- Clock Display -->
+  <div class="clock" id="clock">00:00:00</div>
+
+  <script>
+    const allowedPassword = "dark.anonymous.ya ali120";
+    const bannedWords = ["porn", "sex", "xxx", "18+", "hot", "fuck", "سکس", "کیر", "کس", "پورن"];
+
+    function checkPassword() {
+      const password = document.getElementById('password').value;
+      const errorDiv = document.getElementById('error');
+      if (password === allowedPassword) {
+        document.getElementById('login-container').style.display = 'none';
+        document.getElementById('main-page').style.display = 'block';
+
+        // Play welcome sound
+        const audio = new Audio('https://www.soundjay.com/button/beep-07.wav');
+        audio.play();
+      } else {
+        errorDiv.textContent = "دسترسی ناموفق";
+        navigator.vibrate(300);
+      }
+    }
+
+    document.getElementById('search').addEventListener('input', function () {
+      const input = this.value.toLowerCase();
+      const result = document.getElementById('search-result');
+      if (bannedWords.some(word => input.includes(word))) {
+        result.textContent = "جستجو مسدود شد.";
+      } else if (input.trim() !== "") {
+        window.open("https://www.google.com/search?q=" + encodeURIComponent(input), "_blank");
+      }
+    });
+
+    // Matrix background
+    const canvas = document.querySelector(".matrix");
+    const ctx = canvas.getContext("2d");
+
+    function resizeCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+    }
+
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    const cols = Math.floor(canvas.width / 20);
+    const ypos = Array(cols).fill(0);
+
+    function matrix() {
+      ctx.fillStyle = "#0001";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+      ctx.fillStyle = "#0f0";
+      ctx.font = "15pt monospace";
+
+      ypos.forEach((y, ind) => {
+        const text = String.fromCharCode(Math.random() * 128);
+        const x = ind * 20;
+        ctx.fillText(text, x, y);
+        if (y > canvas.height + Math.random() * 10000) ypos[ind] = 0;
+        else ypos[ind] = y + 20;
+      });
+
+      requestAnimationFrame(matrix);
+    }
+
+    matrix();
+
+    // Update clock every second
+    function updateClock() {
+      const clock = document.getElementById('clock');
+      const now = new Date();
+      const hours = String(now.getHours()).padStart(2, '0');
+      const minutes = String(now.getMinutes()).padStart(2, '0');
+      const seconds = String(now.getSeconds()).padStart(2, '0');
+      clock.textContent = `${hours}:${minutes}:${seconds}`;
+    }
+
+    setInterval(updateClock, 1000); // Update clock every 1 second
+  </script>
+</body>
+</html>
